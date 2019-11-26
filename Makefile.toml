@@ -1,0 +1,35 @@
+env_files = [ ".env" ]
+
+[tasks.build]
+clear = true
+script_runner = "@shell"
+script = [
+'''
+cargo +avr xb --target=arduboy.json --release
+cp target/arduboy/release/lib${CARGO_MAKE_CRATE_FS_NAME}.a ../ArduboyRust/ArduboyRustHost/lib/
+cd ../ArduboyRust/ArduboyRustHost
+pio run
+'''
+]
+
+[tasks.upload]
+dependencies = ["build"]
+script_runner = "@shell"
+script = [
+'''
+cd ../ArduboyRust/ArduboyRustHost
+pio run -t upload
+'''
+]
+
+[tasks.clean]
+clear = true
+script_runner = "@shell"
+script = [
+'''
+cargo clean
+cd ../ArduboyRust/ArduboyRustHost
+rm lib/lib${CARGO_MAKE_CRATE_FS_NAME}.a
+pio run -t clean
+'''
+]
